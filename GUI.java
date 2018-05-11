@@ -40,6 +40,7 @@ public final class GUI extends JFrame implements ActionListener{
      *************************************************/
     private int count0;
     private int count1; 
+    private int count2;
     JButton jbtNewPuzzle = new JButton("New Puzzle");
     JButton jbtHints     = new JButton("Hints");
     JButton jbtSolve     = new JButton("Solve");
@@ -49,14 +50,16 @@ public final class GUI extends JFrame implements ActionListener{
     final int row = 9;
     final int colum = 9;
     final Color[] col ;
-    //Initialize the array
+    //Initialize the values of the array
     final JTextField[][] subPanels = new JTextField[row][colum];
     final JTextField result;
-    int[][] suduko = new int[GUI.this.row][GUI.this.colum];
+    int[][] suduko = new int[row][colum];
+    int[][] validator = new int[row][colum];
     @SuppressWarnings("empty-statement")
     public GUI(){
         super("Suduko Solver @ SMAIL GOURMI");
         this.count0 = 0;
+        this.count2=0;
         this.myFont = new Font("Serif", Font.BOLD, 48);
         this.col = new Color[4];
         col[0] = Color.blue;
@@ -140,6 +143,9 @@ public final class GUI extends JFrame implements ActionListener{
         jbtSolve.addActionListener((ActionListener) this); 
         jbtClear.addActionListener((ActionListener) this); 
         jbtExit.addActionListener((ActionListener)this);
+        jbtHints.addActionListener((ActionListener)this);
+        jbtNewPuzzle.addActionListener((ActionListener)this);
+        
        
         //********************************/
         add(bigPanel);
@@ -152,19 +158,123 @@ public final class GUI extends JFrame implements ActionListener{
              public void actionPerformed(ActionEvent evt) {
                 if(evt.getSource()==jbtClear){
                     this.result.setText("");
+                    this.count2=0;
                     for(int r=0;r<row;r++){
                         for(int c=0;c<colum;c++){
                            subPanels[r][c].setText(null);
                            this.suduko[r][c]=0;
+                           this.validator[r][c]=0;
                         }
-                    }}
+                    }
+                this.result.setVisible(false);
+                }
                 else if(evt.getSource()==jbtExit){
                         // Runtime.getRuntime().halt(0);
                         System.exit(0);
                         }
+                else if(evt.getSource()==jbtNewPuzzle){
+                        
+                        for(int r=0;r<row;r++){
+                            for(int c=0;c<colum;c++){
+                               subPanels[r][c].setText(null);
+                               this.suduko[r][c]=0;
+                               this.validator[r][c]=0;
+                            }
+                        }
+                        solver();
+                        for(int r=randInt(0,8);r<row;r++){
+                            for(int c=randInt(0,8);c<colum;c++){
+                                    validator[r][c]++;
+                                   subPanels[r][c].setText(""+suduko[r][c]);
+                                }
+                            }
+                        }
+                else if(evt.getSource()==jbtHints){
+                    
+                        if(this.count2==0){
+                            solver();
+                            this.count2++;
+                        }
+                        while(true){
+                            int r=randInt(0,8);
+                            int c =randInt(0,8);
+                            validator[r][c]++;
+                            if(validator[r][c]==1){
+                                 subPanels[r][c].setText(""+suduko[r][c]);
+                                 break;
+                            }else
+                            {
+                                if(validator[r][c]==81) {
+                                    break;
+                                } else {
+                                }
+                            }
+                           
+                        }
+                }
                 else if(evt.getSource()==jbtSolve){
-                    long startTime = System.currentTimeMillis();
-                        this.count0=0;
+                    long startTime=0;
+                    long endTime=0;
+                    if(this.count2==0){
+                        startTime = System.currentTimeMillis();
+                        solver();
+                        endTime = System.currentTimeMillis();
+                    }
+                    for(int r=0;r<row;r++){
+                        for(int c=0;c<colum;c++){
+                           subPanels[r][c].setText(""+suduko[r][c]);
+                        }
+                    }
+                    this.result.setVisible(true);
+                    this.result.setText("That took " + (endTime - startTime) + " milliseconds");
+                     
+                }       
+        }
+    /********************************************
+     *  Random Values
+     * @param min
+     * @param max
+     * @return 
+    *********************************************/
+    public static int randInt(int min, int max) {
+    Random rand = new Random();
+    int randomNum = rand.nextInt((max - min) + 1) + min;
+
+    return randomNum;}
+    
+    public final  Color setFontColor(Color input){
+    Color temp;
+       if(input == col[0])
+           temp=col[1];
+       else if(input == col[1])
+           temp=col[0];
+       else if(input==col[2])
+           temp=col[3];
+       else
+           temp=col[2];
+    return temp;
+    }
+    /***************************
+     *this function is to make only the input between 0 and 9 
+     * "#" means that this field accept only one digit "INELEC OU LAKHBICHE IGEE "
+     * we still have problem of 0 digit ,we need to figure out this 
+     * @param args 
+     *****************************/
+   /* protected MaskFormatter createFormatter(String s) {
+    MaskFormatter formatter = null;
+    try {
+        formatter = new MaskFormatter(s);
+    } catch (java.text.ParseException exc) {
+        System.err.println("formatter is bad: " + exc.getMessage());
+        System.exit(-1);
+    }
+    return formatter;
+    }*/
+    /************************
+    *Solver program 
+    **********************/
+        public void solver(){
+                                this.count0=0;
                         this.count1=0;
                         int temp;
                         boolean checked;
@@ -340,61 +450,14 @@ public final class GUI extends JFrame implements ActionListener{
                                    }
                                     if(checked==false){
                                         suduko[r][c]=temp;
-                                        String val = String.valueOf(temp);
-                                        subPanels[r][c].setText(val);
                                     }else{
                                     }
                                 }
                             }
                             this.count0=0;
                         }
-                    long endTime = System.currentTimeMillis();
-                    this.result.setVisible(true);
-                    this.result.setText("That took " + (endTime - startTime) + " milliseconds");
-                }       
-        }
-    /********************************************
-     *  Random Values
-     * @param min
-     * @param max
-     * @return 
-    *********************************************/
-    
-    //********************************************
-    public static int randInt(int min, int max) {
-    Random rand = new Random();
-    int randomNum = rand.nextInt((max - min) + 1) + min;
-
-    return randomNum;}
-    
-    public final  Color setFontColor(Color input){
-    Color temp;
-       if(input == col[0])
-           temp=col[1];
-       else if(input == col[1])
-           temp=col[0];
-       else if(input==col[2])
-           temp=col[3];
-       else
-           temp=col[2];
-    return temp;
     }
-    /***************************
-     *this function is to make only the input between 0 and 9 
-     * "#" means that this field accept only one digit "INELEC OU LAKHBICHE IGEE "
-     * we still have problem of 0 digit ,we need to figure out this 
-     * @param args 
-     *****************************/
-   /* protected MaskFormatter createFormatter(String s) {
-    MaskFormatter formatter = null;
-    try {
-        formatter = new MaskFormatter(s);
-    } catch (java.text.ParseException exc) {
-        System.err.println("formatter is bad: " + exc.getMessage());
-        System.exit(-1);
-    }
-    return formatter;
-    }*/
+    //*************************************************************************************
 
 public static void main(String[] args){
     @SuppressWarnings("unchecked")
