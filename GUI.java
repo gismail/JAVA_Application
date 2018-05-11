@@ -2,7 +2,6 @@
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- * THis is a 9x9 suduko application done by Smail Gourmi with Help of Andy Evans .
  */
 package GUI_PACKAGE;
 
@@ -11,10 +10,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 import java.util.Random;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -38,21 +38,25 @@ public final class GUI extends JFrame implements ActionListener{
      * Title - Suduko puzzle
      * @param args 
      *************************************************/
-    
+    private int count0;
+    private int count1; 
     JButton jbtNewPuzzle = new JButton("New Puzzle");
     JButton jbtHints     = new JButton("Hints");
     JButton jbtSolve     = new JButton("Solve");
     JButton jbtClear     = new JButton("Clear");
+    JButton jbtExit     = new JButton("Exit");
     Font myFont;
     final int row = 9;
     final int colum = 9;
     final Color[] col ;
-    //Initialize the values of the array
+    //Initialize the array
     final JTextField[][] subPanels = new JTextField[row][colum];
+    final JTextField result;
     int[][] suduko = new int[GUI.this.row][GUI.this.colum];
     @SuppressWarnings("empty-statement")
     public GUI(){
-        super("Suduko GUI @ SMAIL GOURMI");
+        super("Suduko Solver @ SMAIL GOURMI");
+        this.count0 = 0;
         this.myFont = new Font("Serif", Font.BOLD, 48);
         this.col = new Color[4];
         col[0] = Color.blue;
@@ -60,19 +64,24 @@ public final class GUI extends JFrame implements ActionListener{
         col[2] = Color.green;
         col[3] = Color.red;
         Color b;
+        /*********************************
+         *Layout Grid to hold all your component 
+         *********************************/
+        final JPanel bigPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints components = new GridBagConstraints();
+        
+        
         /*********************************************
          * Panel TO HOLD
          * 9x9 PUZZLE GRID
          *********************************************/
         final JPanel GuiPanel = new JPanel(new GridLayout(row,colum));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(600,600);
-        add(GuiPanel);
+        bigPanel.add(GuiPanel);
         setLocationRelativeTo(null);
         setVisible(true);
         Border outerBorder = BorderFactory.createLineBorder(Color.black,2);
         Border innerBorder = BorderFactory.createLineBorder(Color.black,1);
-        
         GuiPanel.setBorder(outerBorder);
         for(int r=0;r<this.row;r++){
             for(int c=0;c<this.colum;c++){
@@ -87,10 +96,12 @@ public final class GUI extends JFrame implements ActionListener{
                 subPanels[r][c].setHorizontalAlignment(JTextField.CENTER);
                 subPanels[r][c].setSize(50,50);
                 subPanels[r][c].setPreferredSize(new Dimension(50, 50));
-                
                 GuiPanel.add(subPanels[r][c]);
             }
         }
+        components.gridx=0;
+        components.gridy=0;
+        bigPanel.add(GuiPanel,components);
         /*********************************************************
          * Panel To Hold Buttons
          *********************************************************/
@@ -100,6 +111,7 @@ public final class GUI extends JFrame implements ActionListener{
         ButtonPanel.add(jbtHints);
         ButtonPanel.add(jbtSolve);
         ButtonPanel.add(jbtClear);
+        ButtonPanel.add(jbtExit);
         Border LineBorder = new LineBorder(Color.lightGray);
         ButtonPanel.setBorder(LineBorder);
         BoxLayout horizontal = new BoxLayout(ButtonPanel,BoxLayout.X_AXIS);
@@ -107,28 +119,53 @@ public final class GUI extends JFrame implements ActionListener{
         FlowLayout flow = new FlowLayout();
         ButtonPanel.setLayout(flow);
         ButtonPanel.setVisible(true);
-        add(ButtonPanel,BorderLayout.SOUTH); 
+        components.gridy=1;
+        bigPanel.add(ButtonPanel,components);
+        /***********************************
+         * set field for time it takes to solve 
+         ***********************************/
+        this.result = new JTextField();
+        this.result.setBackground(col[randInt(0, col.length-1)]);
+        Font fontResult = new Font("Serif", Font.BOLD, 18);
+        this.result.setFont(fontResult);
+        b = this.result.getBackground();
+        this.result.setForeground(setFontColor(b));
+        this.result.setHorizontalAlignment( JTextField.CENTER);
+        components.gridy=2;
+        components.fill=GridBagConstraints.HORIZONTAL;
+        bigPanel.add(result,components);
         /**********************************
          * setting Actions For Each Button
          **********************************/
         jbtSolve.addActionListener((ActionListener) this); 
         jbtClear.addActionListener((ActionListener) this); 
+        jbtExit.addActionListener((ActionListener)this);
        
         //********************************/
+        add(bigPanel);
         this.pack();
         this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
     @Override
+    @SuppressWarnings("empty-statement")
              public void actionPerformed(ActionEvent evt) {
                 if(evt.getSource()==jbtClear){
+                    this.result.setText("");
                     for(int r=0;r<row;r++){
                         for(int c=0;c<colum;c++){
                            subPanels[r][c].setText(null);
                            this.suduko[r][c]=0;
                         }
-                    }
-                }else if(evt.getSource()==jbtSolve){
+                    }}
+                else if(evt.getSource()==jbtExit){
+                        // Runtime.getRuntime().halt(0);
+                        System.exit(0);
+                        }
+                else if(evt.getSource()==jbtSolve){
+                    long startTime = System.currentTimeMillis();
+                        this.count0=0;
+                        this.count1=0;
                         int temp;
                         boolean checked;
                         for(int k=0;k<this.row;k++){
@@ -136,8 +173,8 @@ public final class GUI extends JFrame implements ActionListener{
                                 this.suduko[k][p]=0;
                             }
                         }
-                        for (int r = 0; r<9;r++) {
-                            for (int c = 0; c<9;c++) {
+                        for (int r = 0; r<this.row;r++) {
+                            for (int c = 0; c<this.colum;c++) {
                                 checked=true;
                                 while (checked) {
                                     temp=randInt(1,9);
@@ -145,140 +182,162 @@ public final class GUI extends JFrame implements ActionListener{
                                     while( pass<GUI.this.colum ) {
                                         if(suduko[r][pass]==temp || suduko[pass][c]==temp){
                                             checked=true;
-                                            break;}
+                                            this.count0++;
+                                            if(this.count0==50){
+                                                this.count1++;
+                                                for(int zero=0;zero<c;zero++){
+                                                    suduko[r][zero]=0;
+                                                }
+                                                c=0;
+                                                this.count0=0;
+                                            }
+                                            if(this.count1==10){
+                                                for(int zero0=r;zero0>=0;zero0--){
+                                                    for(int zero1=this.colum-1;zero1>=0;zero1-- ){
+                                                        suduko[zero0][zero1]=0;
+                                                    }
+                                                    this.count1=0;
+                                                    r=0;
+                                                    c=0;
+                                                }
+                                            }
+                                            break;
+                                        }
                                         else{
                                             checked=false;
                                             pass++;
                                         }
                                     }
-                                    if(r<3 && c<3){
-                                        OUTER_LOOP:
-                                                    for(int start=0;start<3;start++){
-                                                        for(int start2=0;start2<3;start2++){
-                                                            if(suduko[start][start2]==temp){
-                                                                checked=true;
-                                                                break OUTER_LOOP;
-                                                            }
-                                                            else{
-                                                                checked = false;
-                                                            }
-                                                        }
+                                   if(!checked){
+                                                    if(r<3 && c<3){
+                                                        OUTER_LOOP:
+                                                                    for(int start=0;start<3;start++){
+                                                                        for(int start2=0;start2<3;start2++){
+                                                                            if(suduko[start][start2]==temp){
+                                                                                checked=true;
+                                                                                break OUTER_LOOP;
+                                                                            }
+                                                                            else{
+                                                                                checked = false;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                  }
+                                                    else if(r<3 && c>=3 && c<6){
+                                                                OUTER_LOOP:
+                                                                    for(int start=0;start<6;start++){
+                                                                        for(int start2=3;start2<6;start2++){
+                                                                            if(suduko[start][start2]==temp){
+                                                                                checked=true;
+                                                                                break OUTER_LOOP;
+                                                                            }
+                                                                            else{
+                                                                                checked = false;
+                                                                            }
+                                                                        }
+                                                                    }
+
                                                     }
-                                                  }
-                                    if(r<3 && c>=3 && c<6){
-                                                OUTER_LOOP:
-                                                    for(int start=0;start<6;start++){
-                                                        for(int start2=3;start2<6;start2++){
-                                                            if(suduko[start][start2]==temp){
-                                                                checked=true;
-                                                                break OUTER_LOOP;
-                                                            }
-                                                            else{
-                                                                checked = false;
-                                                            }
-                                                        }
+                                                   else if(r<3 && c>=6){
+                                                                                            OUTER_LOOP:
+                                                                    for(int start=0;start<3;start++){
+                                                                        for(int start2=6;start2<9;start2++){
+                                                                            if(suduko[start][start2]==temp){
+                                                                                checked=true;
+                                                                                break OUTER_LOOP;
+                                                                            }
+                                                                            else{
+                                                                                checked = false;
+                                                                            }
+                                                                        }
+                                                                    }
                                                     }
-                                    
-                                    }
-                                    if(r<3 && c>=6){
-                                                                            OUTER_LOOP:
-                                                    for(int start=0;start<3;start++){
-                                                        for(int start2=6;start2<9;start2++){
-                                                            if(suduko[start][start2]==temp){
-                                                                checked=true;
-                                                                break OUTER_LOOP;
-                                                            }
-                                                            else{
-                                                                checked = false;
-                                                            }
-                                                        }
+                                                   else if(r>=3 && r<6 && c<3){
+                                                                OUTER_LOOP:
+                                                                    for(int start=3;start<6;start++){
+                                                                        for(int start2=0;start2<3;start2++){
+                                                                            if(suduko[start][start2]==temp){
+                                                                                checked=true;
+                                                                                break OUTER_LOOP;
+                                                                            }
+                                                                            else{
+                                                                                checked = false;
+                                                                            }
+                                                                        }
+                                                                    }
                                                     }
-                                    }
-                                    if(r>=3 && r<6 && c<3){
-                                                OUTER_LOOP:
-                                                    for(int start=3;start<6;start++){
-                                                        for(int start2=0;start2<3;start2++){
-                                                            if(suduko[start][start2]==temp){
-                                                                checked=true;
-                                                                break OUTER_LOOP;
-                                                            }
-                                                            else{
-                                                                checked = false;
-                                                            }
-                                                        }
+                                                   else if(r>=3 && r<6 && c>=3 && c<6){
+                                                                                            OUTER_LOOP:
+                                                                    for(int start=3;start<6;start++){
+                                                                        for(int start2=3;start2<6;start2++){
+                                                                            if(suduko[start][start2]==temp){
+                                                                                checked=true;
+                                                                                break OUTER_LOOP;
+                                                                            }
+                                                                            else{
+                                                                                checked = false;
+                                                                            }
+                                                                        }
+                                                                    }
                                                     }
-                                    }
-                                    if(r>=3 && r<6 && c>=3 && c<6){
-                                                                            OUTER_LOOP:
-                                                    for(int start=3;start<6;start++){
-                                                        for(int start2=3;start2<6;start2++){
-                                                            if(suduko[start][start2]==temp){
-                                                                checked=true;
-                                                                break OUTER_LOOP;
-                                                            }
-                                                            else{
-                                                                checked = false;
-                                                            }
-                                                        }
+                                                   else if(r>=3 && r<6 && c>=6){
+                                                                                            OUTER_LOOP:
+                                                                    for(int start=3;start<6;start++){
+                                                                        for(int start2=6;start2<9;start2++){
+                                                                            if(suduko[start][start2]==temp){
+                                                                                checked=true;
+                                                                                break OUTER_LOOP;
+                                                                            }
+                                                                            else{
+                                                                                checked = false;
+                                                                            }
+                                                                        }
+                                                                    }
+
                                                     }
-                                    }
-                                    if(r>=3 && r<6 && c>=6){
-                                                                            OUTER_LOOP:
-                                                    for(int start=3;start<6;start++){
-                                                        for(int start2=6;start2<9;start2++){
-                                                            if(suduko[start][start2]==temp){
-                                                                checked=true;
-                                                                break OUTER_LOOP;
-                                                            }
-                                                            else{
-                                                                checked = false;
-                                                            }
-                                                        }
+                                                   else if(r>=6 && c<3){
+                                                                                            OUTER_LOOP:
+                                                                    for(int start=6;start<9;start++){
+                                                                        for(int start2=0;start2<3;start2++){
+                                                                            if(suduko[start][start2]==temp){
+                                                                                checked=true;
+                                                                                break OUTER_LOOP;
+                                                                            }
+                                                                            else{
+                                                                                checked = false;
+                                                                            }
+                                                                        }
+                                                                    }
                                                     }
-                                    
-                                    }
-                                    if(r>=6 && c<3){
-                                                                            OUTER_LOOP:
-                                                    for(int start=6;start<9;start++){
-                                                        for(int start2=0;start2<3;start2++){
-                                                            if(suduko[start][start2]==temp){
-                                                                checked=true;
-                                                                break OUTER_LOOP;
-                                                            }
-                                                            else{
-                                                                checked = false;
-                                                            }
-                                                        }
+                                                   else if(r>=6 && c>=3 && c<6){
+                                                                                            OUTER_LOOP:
+                                                                    for(int start=6;start<9;start++){
+                                                                        for(int start2=3;start2<6;start2++){
+                                                                            if(suduko[start][start2]==temp){
+                                                                                checked=true;
+                                                                                break OUTER_LOOP;
+                                                                            }
+                                                                            else{
+                                                                                checked = false;
+                                                                            }
+                                                                        }
+                                                                    }
                                                     }
-                                    }
-                                    if(r>=6 && c>=3 && c<6){
-                                                                            OUTER_LOOP:
-                                                    for(int start=6;start<9;start++){
-                                                        for(int start2=3;start2<6;start2++){
-                                                            if(suduko[start][start2]==temp){
-                                                                checked=true;
-                                                                break OUTER_LOOP;
-                                                            }
-                                                            else{
-                                                                checked = false;
-                                                            }
-                                                        }
+                                                   else if(r>=6 && c>=6){
+                                                                OUTER_LOOP:
+                                                                    for(int start=6;start<9;start++){
+                                                                        for(int start2=6;start2<9;start2++){
+                                                                            if(suduko[start][start2]==temp){
+                                                                                checked=true;
+                                                                                break OUTER_LOOP;
+                                                                            }
+                                                                            else{
+                                                                                checked = false;
+                                                                            }
+                                                                        }
+                                                                    }
                                                     }
-                                    }
-                                    if(r>=6 && c>=6){
-                                                OUTER_LOOP:
-                                                    for(int start=6;start<9;start++){
-                                                        for(int start2=6;start2<9;start2++){
-                                                            if(suduko[start][start2]==temp){
-                                                                checked=true;
-                                                                break OUTER_LOOP;
-                                                            }
-                                                            else{
-                                                                checked = false;
-                                                            }
-                                                        }
-                                                    }
-                                    }
+                                   }
                                     if(checked==false){
                                         suduko[r][c]=temp;
                                         String val = String.valueOf(temp);
@@ -287,7 +346,11 @@ public final class GUI extends JFrame implements ActionListener{
                                     }
                                 }
                             }
+                            this.count0=0;
                         }
+                    long endTime = System.currentTimeMillis();
+                    this.result.setVisible(true);
+                    this.result.setText("That took " + (endTime - startTime) + " milliseconds");
                 }       
         }
     /********************************************
