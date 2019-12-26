@@ -1,7 +1,10 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * This work has been donne by me SMAIL GOURMI with help of Mister Andy Evans in part of GUI and Panels 
+ * thank you so much for your help , i have found your code in the internet , so i took it and modified it .
+ * If you find my code interesting :
+ * don't hesitate to take it and modify it without forgetting to mention the source from where you took it.
+ * Good luck for every one .
  */
 package GUI_PACKAGE;
 
@@ -27,13 +30,16 @@ import javax.swing.border.LineBorder;
 
 /**
  *
- * @author SMAIL
+ * @author SMAIL GOURMI 
+ * @INEELEC KHABACHINNE
  */
 public final class GUI extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	/*************************************************
-	 * author Smail Gourmi source Andy Evans Date 07/05/2018 Title - Suduko puzzle
-	 * 
+	 *Author Smail Gourmi 
+	 *source Andy Evans 
+	 *Date 07/05/2018 
+	 *Title - Suduko puzzle 9*9
 	 * @param args
 	 *************************************************/
 	private int count0;
