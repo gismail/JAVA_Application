@@ -1,10 +1,7 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- * This work has been donne by me SMAIL GOURMI with help of Mister Andy Evans in part of GUI and Panels 
- * thank you so much for your help , i have found your code in the internet , so i took it and modified it .
- * If you find my code interesting :
- * don't hesitate to take it and modify it without forgetting to mention the source from where you took it.
- * Good luck for every one .
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package GUI_PACKAGE;
 
@@ -30,16 +27,13 @@ import javax.swing.border.LineBorder;
 
 /**
  *
- * @author SMAIL GOURMI 
- * @INEELEC KHABACHINNE
+ * @author SMAIL
  */
 public final class GUI extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	/*************************************************
-	 *Author Smail Gourmi 
-	 *source Andy Evans 
-	 *Date 07/05/2018 
-	 *Title - Suduko puzzle 9*9
+	 * author Smail Gourmi source Andy Evans Date 07/05/2018 Title - Suduko puzzle
+	 * 
 	 * @param args
 	 *************************************************/
 	private int count0;
@@ -65,18 +59,18 @@ public final class GUI extends JFrame implements ActionListener {
 	double startTime = 0.0;
 	double endTime = 0.0;
 
-	@SuppressWarnings("empty-statement")
 	public GUI() {
 		super("Suduko Solver v 1.0 @ SMAIL GOURMI");
 		this.count0 = 0;
 		this.count2 = 0;
 
 		this.myFont = new Font("Serif", Font.BOLD, 48);
-		this.col = new Color[4];
+		this.col = new Color[5];
 		col[0] = Color.blue;
 		col[1] = Color.yellow;
 		col[2] = Color.green;
 		col[3] = Color.red;
+		col[4] = Color.black;
 		Color b;
 		/*********************************
 		 * Layout Grid to hold all your component
@@ -89,7 +83,8 @@ public final class GUI extends JFrame implements ActionListener {
 		 *********************************************/
 		final JPanel GuiPanel = new JPanel(new GridLayout(row, colum));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		bigPanel.add(GuiPanel);
+		components.fill = GridBagConstraints.HORIZONTAL;
+		bigPanel.add(GuiPanel, components);
 		setLocationRelativeTo(null);
 		setVisible(true);
 		Border outerBorder = BorderFactory.createLineBorder(Color.black, 2);
@@ -99,18 +94,22 @@ public final class GUI extends JFrame implements ActionListener {
 			for (int c = 0; c < this.colum; c++) {
 				subPanels[r][c] = new JTextField("");
 				subPanels[r][c].setVisible(true);
-				subPanels[r][c].setColumns(1);
+				// subPanels[r][c].setColumns(1);
 				subPanels[r][c].setBorder(innerBorder);
-				subPanels[r][c].setBackground(col[randInt(0, col.length - 1)]);
+				if (r == c)
+					subPanels[r][c].setBackground(col[4]);
+				else if (c == 8- r)
+					subPanels[r][c].setBackground(col[4]);
+				else
+					subPanels[r][c].setBackground(col[randInt(0, col.length - 2)]);
 				subPanels[r][c].setFont(myFont);
 				b = subPanels[r][c].getBackground();
 				subPanels[r][c].setForeground(setFontColor(b));
 				subPanels[r][c].setHorizontalAlignment(JTextField.CENTER);
-				subPanels[r][c].setPreferredSize(new Dimension(60, 60));
-				
 				GuiPanel.add(subPanels[r][c]);
 			}
 		}
+		components.fill = GridBagConstraints.HORIZONTAL;
 		components.gridx = 0;
 		components.gridy = 0;
 		bigPanel.add(GuiPanel, components);
@@ -131,6 +130,7 @@ public final class GUI extends JFrame implements ActionListener {
 		FlowLayout flow = new FlowLayout();
 		ButtonPanel.setLayout(flow);
 		ButtonPanel.setVisible(true);
+		components.fill = GridBagConstraints.HORIZONTAL;
 		components.gridy = 1;
 		bigPanel.add(ButtonPanel, components);
 		/***********************************
@@ -167,17 +167,14 @@ public final class GUI extends JFrame implements ActionListener {
 		this.count2 = 0;
 		for (int r = 0; r < row; r++) {
 			for (int c = 0; c < colum; c++) {
-				try
-				{
-				    Thread.sleep(1);
-				    subPanels[r][c].setText(null);
-				    
+				try {
+					Thread.sleep(1);
+					subPanels[r][c].setText(null);
+
+				} catch (InterruptedException ex) {
+					Thread.currentThread().interrupt();
 				}
-				catch(InterruptedException ex)
-				{
-				    Thread.currentThread().interrupt();
-				}
-				
+
 				this.suduko[r][c] = 0;
 				this.validator[r][c] = 0;
 			}
@@ -188,7 +185,6 @@ public final class GUI extends JFrame implements ActionListener {
 	}
 
 	@Override
-	@SuppressWarnings("empty-statement")
 	public void actionPerformed(ActionEvent evt) {
 
 		if (evt.getSource() == jbtClear) {
@@ -397,6 +393,7 @@ public final class GUI extends JFrame implements ActionListener {
 									} else {
 										checked = false;
 									}
+									subPanels[r][c].setBackground(col[2]);
 								}
 							}
 						} else if (r < 3 && c >= 3 && c < 6) {
@@ -503,9 +500,7 @@ public final class GUI extends JFrame implements ActionListener {
 	// *************************************************************************************
 
 	public static void main(String[] args) {
-		@SuppressWarnings("unchecked")
-		GUI gui;
-		gui = new GUI();
+		GUI suduko = new GUI();
 	}
 
 }
